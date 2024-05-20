@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import ReactPlayer from 'react-player';
-import { FaPlay, FaPause, FaExpand, FaStar, FaMoon, FaSun } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaPlay, FaPause, FaExpand, FaStar, FaMoon, FaSun, FaTrash } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -37,6 +40,23 @@ const Sidebar = styled.div`
   color: ${({ theme }) => theme.sidebarText};
   padding: 20px;
   flex-shrink: 0;
+  overflow-y: auto;
+`;
+
+const NavButton = styled(Link)`
+  display: block;
+  margin: 10px 0;
+  padding: 10px;
+  background: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    background: #555;
+  }
 `;
 
 const MainContent = styled.div`
@@ -137,11 +157,19 @@ const CommentList = styled.div`
 `;
 
 const Comment = styled.div`
+  display: flex;
+  align-items: center;
   background: #f9f9f9;
   padding: 10px;
   border-radius: 5px;
   margin-top: 10px;
   border: 1px solid #ddd;
+`;
+
+const DeleteIcon = styled(FaTrash)`
+  color: #f00;
+  margin-left: 10px;
+  cursor: pointer;
 `;
 
 const CategoryFilter = styled.select`
@@ -155,12 +183,24 @@ const Home = () => {
   const [progress, setProgress] = useState({});
   const [durations, setDurations] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
-  const [ratings, setRatings] = useState({});
-  const [comments, setComments] = useState({});
-  const [watchLater, setWatchLater] = useState([]);
+  const [ratings, setRatings] = useState(JSON.parse(localStorage.getItem('ratings')) || {});
+  const [comments, setComments] = useState(JSON.parse(localStorage.getItem('comments')) || {});
+  const [watchLater, setWatchLater] = useState(JSON.parse(localStorage.getItem('watchLater')) || []);
   const [category, setCategory] = useState('All');
   const [theme, setTheme] = useState(lightTheme);
   const videoRefs = useRef({});
+
+  useEffect(() => {
+    localStorage.setItem('ratings', JSON.stringify(ratings));
+  }, [ratings]);
+
+  useEffect(() => {
+    localStorage.setItem('comments', JSON.stringify(comments));
+  }, [comments]);
+
+  useEffect(() => {
+    localStorage.setItem('watchLater', JSON.stringify(watchLater));
+  }, [watchLater]);
 
   const handlePlayPause = (video) => {
     setPlayingStatus(prev => ({
@@ -208,18 +248,30 @@ const Home = () => {
     }));
   };
 
+  const handleDeleteComment = (video, index) => {
+    setComments(prev => ({
+      ...prev,
+      [video]: prev[video].filter((_, i) => i !== index)
+    }));
+  };
+
   const handleAddToWatchLater = (video) => {
     if (!watchLater.includes(video)) {
       setWatchLater([...watchLater, video]);
     }
   };
 
+  const handleRemoveFromWatchLater = (video) => {
+    setWatchLater(watchLater.filter(item => item !== video));
+  };
+
   const toggleTheme = () => {
     setTheme(prevTheme => (prevTheme === lightTheme ? darkTheme : lightTheme));
+    toast(`Byttet til ${theme === lightTheme ? 'Dark' : 'Light'} mode`);
   };
 
   const videoCategories = {
-    'video1.mp4': 'Virtualization',
+    'video1.mp4': 'Virtualisering',
     'video2.mp4': 'Database',
     'video3.mp4': 'Database'
   };
@@ -238,15 +290,20 @@ const Home = () => {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
+      <ToastContainer />
       <Container>
         <Sidebar>
           <h1>SECKER</h1>
-          <p>Kommandoer</p>
-          <p>YouTube Kanal</p>
-          <p>Watch Later</p>
+          <NavButton to="/">Hjem</NavButton>
+          <NavButton to="/guide">Guide</NavButton>
+
+          <p>Mine favoritter:</p>
           <ul>
             {watchLater.map(video => (
-              <li key={video}>{videoTitles[video]}</li>
+              <li key={video}>
+                {videoTitles[video]}
+                <FaTrash onClick={() => handleRemoveFromWatchLater(video)} />
+              </li>
             ))}
           </ul>
         </Sidebar>
@@ -260,8 +317,8 @@ const Home = () => {
               onChange={(e) => setSearchTerm(e.target.value)} 
             />
             <CategoryFilter onChange={(e) => setCategory(e.target.value)}>
-              <option value="All">All</option>
-              <option value="Virtualization">Virtualization</option>
+              <option value="All">Alle</option>
+              <option value="Virtualisering">Virtualisering</option>
               <option value="Database">Database</option>
             </CategoryFilter>
             <Icon onClick={toggleTheme}>
@@ -306,14 +363,14 @@ const Home = () => {
                   </Icon>
                 </Controls>
                 <Controls>
-                  <button onClick={() => handleAddToWatchLater(video)}>Watch Later</button>
+                  <button onClick={() => handleAddToWatchLater(video)}>Favoritt</button>
                 </Controls>
                 <CommentSection>
-                  <h4>Comments</h4>
+                  <h4>Kommentarer</h4>
                   <CommentInput 
-                    placeholder="Add a comment" 
+                    placeholder="Legg til en kommentar" 
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === 'Enter' && e.target.value.trim() !== '') {
                         handleComment(video, e.target.value);
                         e.target.value = '';
                       }
@@ -321,7 +378,10 @@ const Home = () => {
                   />
                   <CommentList>
                     {(comments[video] || []).map((comment, index) => (
-                      <Comment key={index}>{comment}</Comment>
+                      <Comment key={index}>
+                        {comment}
+                        <DeleteIcon onClick={() => handleDeleteComment(video, index)} />
+                      </Comment>
                     ))}
                   </CommentList>
                 </CommentSection>
