@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
-import { FaMoon, FaSun, FaChevronDown, FaChevronUp, FaSearch, FaArrowUp, FaTrash } from 'react-icons/fa';
+import { FaMoon, FaSun, FaChevronDown, FaChevronUp, FaSearch, FaArrowUp, FaTrash, FaHome, FaBook, FaUser } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
@@ -43,6 +43,7 @@ const darkTheme = {
 const Container = styled.div`
   display: flex;
   height: 100vh;
+  flex-direction: column;
 `;
 
 const Sidebar = styled.div`
@@ -52,15 +53,17 @@ const Sidebar = styled.div`
   padding: 20px;
   flex-shrink: 0;
   overflow-y: auto;
+  position: fixed;
+  height: 100vh;
 `;
 
 const NavButton = styled(Link)`
-  display: block;
+  display: flex;
+  align-items: center;
   margin: 10px 0;
   padding: 10px;
   background: #333;
   color: #fff;
-  text-align: center;
   border-radius: 5px;
   text-decoration: none;
   cursor: pointer;
@@ -70,12 +73,16 @@ const NavButton = styled(Link)`
   }
 `;
 
+const NavIcon = styled.div`
+  margin-right: 10px;
+`;
+
 const MainContent = styled.div`
-  flex-grow: 1;
+  margin-left: 320px;
   background: ${({ theme }) => theme.body};
   padding: 20px;
   overflow-y: auto;
-  position: relative;
+  flex-grow: 1;
 `;
 
 const Header = styled.div`
@@ -86,6 +93,16 @@ const Header = styled.div`
   background: ${({ theme }) => theme.card};
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   border-radius: 8px;
+`;
+
+const HeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const UserIcon = styled(FaUser)`
+  margin-left: 20px;
+  cursor: pointer;
 `;
 
 const GuideContent = styled.div`
@@ -217,6 +234,14 @@ const BackToTopButton = styled.button`
   }
 `;
 
+const Footer = styled.footer`
+  padding: 20px;
+  background: ${({ theme }) => theme.card};
+  text-align: center;
+  border-top: 1px solid #ddd;
+  margin-top: auto;
+`;
+
 const Guide = () => {
   const [theme, setTheme] = useState(lightTheme);
   const [openSections, setOpenSections] = useState({});
@@ -314,10 +339,15 @@ const Guide = () => {
       <Container>
         <Sidebar>
           <h1>SECKER</h1>
-          <NavButton to="/">Hjem</NavButton>
-          <NavButton to="/guide">Guide</NavButton>
+          <NavButton to="/">
+            <NavIcon><FaHome /></NavIcon>
+            Hjem
+          </NavButton>
+          <NavButton to="/guide">
+            <NavIcon><FaBook /></NavIcon>
+            Guide
+          </NavButton>
 
-          <p>Se senere</p>
           <ul>
             {/* Add watchLater items here similar to Home component */}
           </ul>
@@ -341,7 +371,9 @@ const Guide = () => {
         </Sidebar>
         <MainContent>
           <Header>
-            <h2>Guide: Sett opp en MongoDB server</h2>
+            <HeaderLeft>
+              <h2>Guide: Sett opp en MongoDB server</h2>
+            </HeaderLeft>
             <div>
               <Icon onClick={toggleTheme}>
                 {theme === lightTheme ? <FaMoon /> : <FaSun />}
@@ -349,6 +381,7 @@ const Guide = () => {
               <Icon onClick={handleCodeThemeToggle}>
                 {codeTheme === 'tomorrow' ? <FaChevronDown /> : <FaChevronUp />}
               </Icon>
+              <UserIcon />
             </div>
           </Header>
           <GuideContent>
@@ -369,6 +402,9 @@ const Guide = () => {
           <FaArrowUp />
         </BackToTopButton>
       </Container>
+      <Footer>
+        <p>&copy; 2024 SECKER. All Rights Reserved.</p>
+      </Footer>
     </ThemeProvider>
   );
 };

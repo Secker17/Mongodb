@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import ReactPlayer from 'react-player';
 import { Link } from 'react-router-dom';
-import { FaPlay, FaPause, FaExpand, FaStar, FaMoon, FaSun, FaTrash } from 'react-icons/fa';
+import { FaPlay, FaPause, FaExpand, FaStar, FaMoon, FaSun, FaTrash, FaHome, FaBook, FaUser } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -10,6 +10,8 @@ const GlobalStyle = createGlobalStyle`
   body {
     background-color: ${({ theme }) => theme.body};
     color: ${({ theme }) => theme.text};
+    font-family: 'Arial', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 `;
 
@@ -41,15 +43,17 @@ const Sidebar = styled.div`
   padding: 20px;
   flex-shrink: 0;
   overflow-y: auto;
+  position: fixed;
+  height: 100vh;
 `;
 
 const NavButton = styled(Link)`
-  display: block;
+  display: flex;
+  align-items: center;
   margin: 10px 0;
   padding: 10px;
   background: #333;
   color: #fff;
-  text-align: center;
   border-radius: 5px;
   text-decoration: none;
   cursor: pointer;
@@ -59,11 +63,16 @@ const NavButton = styled(Link)`
   }
 `;
 
+const NavIcon = styled.div`
+  margin-right: 10px;
+`;
+
 const MainContent = styled.div`
-  flex-grow: 1;
+  margin-left: 320px;
   background: ${({ theme }) => theme.body};
   padding: 20px;
   overflow-y: auto;
+  flex-grow: 1;
 `;
 
 const Header = styled.div`
@@ -71,8 +80,19 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background: #ffffff;
+  background: ${({ theme }) => theme.card};
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+`;
+
+const HeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const UserIcon = styled(FaUser)`
+  margin-left: 20px;
+  cursor: pointer;
 `;
 
 const CourseGrid = styled.div`
@@ -95,7 +115,7 @@ const CourseCard = styled.div`
 const Icon = styled.div`
   width: 24px;
   height: 24px;
-  color: #333;
+  color: ${({ theme }) => theme.text};
   margin: 0 5px;
   cursor: pointer;
 `;
@@ -294,8 +314,14 @@ const Home = () => {
       <Container>
         <Sidebar>
           <h1>SECKER</h1>
-          <NavButton to="/">Hjem</NavButton>
-          <NavButton to="/guide">Guide</NavButton>
+          <NavButton to="/">
+            <NavIcon><FaHome /></NavIcon>
+            Hjem
+          </NavButton>
+          <NavButton to="/guide">
+            <NavIcon><FaBook /></NavIcon>
+            Guide
+          </NavButton>
 
           <p>Mine favoritter:</p>
           <ul>
@@ -309,21 +335,26 @@ const Home = () => {
         </Sidebar>
         <MainContent>
           <Header>
-            <h2>Kurs Bibliotek</h2>
-            <input 
-              type="text" 
-              placeholder="Finn video" 
-              value={searchTerm} 
-              onChange={(e) => setSearchTerm(e.target.value)} 
-            />
-            <CategoryFilter onChange={(e) => setCategory(e.target.value)}>
-              <option value="All">Alle</option>
-              <option value="Virtualisering">Virtualisering</option>
-              <option value="Database">Database</option>
-            </CategoryFilter>
-            <Icon onClick={toggleTheme}>
-              {theme === lightTheme ? <FaMoon /> : <FaSun />}
-            </Icon>
+            <HeaderLeft>
+              <h2>Kurs Bibliotek</h2>
+              <input 
+                type="text" 
+                placeholder="Finn video" 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+              />
+              <CategoryFilter onChange={(e) => setCategory(e.target.value)}>
+                <option value="All">Alle</option>
+                <option value="Virtualisering">Virtualisering</option>
+                <option value="Database">Database</option>
+              </CategoryFilter>
+            </HeaderLeft>
+            <div>
+              <Icon onClick={toggleTheme}>
+                {theme === lightTheme ? <FaMoon /> : <FaSun />}
+              </Icon>
+              <UserIcon />
+            </div>
           </Header>
           <CourseGrid>
             {filteredVideos.map(video => (
