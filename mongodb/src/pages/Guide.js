@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
-import { FaMoon, FaSun, FaChevronDown, FaChevronUp, FaSearch, FaArrowUp, FaTrash, FaHome, FaBook, FaUser } from 'react-icons/fa';
+import { FaMoon, FaSun, FaChevronDown, FaChevronUp, FaSearch, FaArrowUp, FaHome, FaBook, FaUser } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
@@ -26,7 +26,9 @@ const lightTheme = {
   sidebarText: '#fff',
   searchBackground: '#e0e0e0',
   codeBackground: '#f5f5f5',
-  codeText: '#333'
+  codeText: '#333',
+  linkHover: '#1a73e8',
+  headerBackground: '#fff',
 };
 
 const darkTheme = {
@@ -37,7 +39,9 @@ const darkTheme = {
   sidebarText: '#fff',
   searchBackground: '#555',
   codeBackground: '#2d2d2d',
-  codeText: '#f8f8f2'
+  codeText: '#f8f8f2',
+  linkHover: '#1a73e8',
+  headerBackground: '#333',
 };
 
 const Container = styled.div`
@@ -90,7 +94,7 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background: ${({ theme }) => theme.card};
+  background: ${({ theme }) => theme.headerBackground};
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   border-radius: 8px;
 `;
@@ -176,6 +180,7 @@ const TocLink = styled.a`
 
   &:hover {
     text-decoration: underline;
+    color: ${({ theme }) => theme.linkHover};
   }
 `;
 
@@ -264,7 +269,7 @@ const Guide = () => {
 
   const toggleTheme = () => {
     setTheme(prevTheme => (prevTheme === lightTheme ? darkTheme : lightTheme));
-    toast(`Byttet til ${theme === lightTheme ? 'Dark' : 'Light'} mode`);
+    toast(`Switched to ${theme === lightTheme ? 'Dark' : 'Light'} mode`);
   };
 
   const toggleSection = (index) => {
@@ -299,28 +304,34 @@ const Guide = () => {
 
   const sections = [
     {
-      title: '1. Last ned og installer MongoDB',
-      content: `Først må du laste ned den nyeste versjonen av MongoDB fra den offisielle nettsiden. Følg instruksjonene for ditt operativsystem for å installere programvaren.`,
+      title: '1. Sign Up for MongoDB Atlas',
+      content: `Go to the [MongoDB Atlas website](https://www.mongodb.com/cloud/atlas) and sign up for a free account.`,
+      image: 'https://d7umqicpi7263.cloudfront.net/img/product/ff17ad02-a9a0-4bd6-95db-25741bd05e27.png',
     },
     {
-      title: '2. Start MongoDB serveren',
-      content: `Etter installasjonen, start MongoDB serveren ved å kjøre kommandoen ${highlightCode('mongod')} i terminalen. Sørg for at MongoDB kjører som en bakgrunnsprosess.`,
+      title: '2. Create a Cluster',
+      content: `After signing up, create a new cluster by following the instructions on the MongoDB Atlas dashboard.`,
+      image: 'https://webimages.mongodb.com/_com_assets/cms/kykgzd0sd3qiv9n36-atlas-hero.svg?auto=format%252Ccompress',
     },
     {
-      title: '3. Koble til MongoDB',
-      content: `For å koble til MongoDB, åpne en ny terminal og kjør kommandoen ${highlightCode('mongo')}. Dette vil starte MongoDB klienten og koble deg til serveren.`,
+      title: '3. Whitelist Your IP Address',
+      content: `To connect to your cluster, you need to whitelist your IP address. Go to the Network Access tab and add your current IP address.`,
+      image: 'https://studio3t.com/wp-content/uploads/2020/04/mongodb-atlas-ip-whitelist-tab-scaled.jpg',
     },
     {
-      title: '4. Opprett en database og samling',
-      content: `Når du er koblet til MongoDB, kan du opprette en ny database med kommandoen ${highlightCode('use databaseName')}. Deretter kan du opprette en ny samling med kommandoen ${highlightCode("db.createCollection('collectionName')")}.`,
+      title: '4. Create a Database User',
+      content: `Create a database user with the necessary permissions to access your cluster. Go to the Database Access tab and add a new user.`,
+      image: 'https://www.mongodb.com/docs/guides/static/8bcb8e948c871029e6710747788d6231/0e7aa/db-user-password.webp',
     },
     {
-      title: '5. Sett inn dokumenter',
-      content: `For å sette inn dokumenter i samlingen, bruk kommandoen ${highlightCode("db.collectionName.insertOne({ key: 'value' })")}. Du kan også sette inn flere dokumenter med kommandoen ${highlightCode("db.collectionName.insertMany([{ key: 'value1' }, { key: 'value2' }])")}.`,
+      title: '5. Connect to Your Cluster Using MongoDB Compass',
+      content: `Download and install MongoDB Compass from the [official website](https://www.mongodb.com/products/compass). Open Compass and use the connection string from the Atlas dashboard to connect to your cluster.`,
+      image: 'https://images.contentstack.io/v3/assets/blt7151619cb9560896/blt924135b56cfca952/646e1f54a9ab8d332d67324a/compass.svg',
     },
     {
-      title: '6. Hent data',
-      content: `For å hente data fra samlingen, bruk kommandoen ${highlightCode('db.collectionName.find()')}. Du kan også bruke spørringer for å hente spesifikke data, for eksempel ${highlightCode("db.collectionName.find({ key: 'value' })")}.`,
+      title: '6. Create and Manage Databases and Collections in Compass',
+      content: `Once connected, you can create and manage databases and collections directly within MongoDB Compass.`,
+      image: 'https://www.notion.so/image/https%3A%2F%2Fdownloads.intercomcdn.com%2Fi%2Fo%2F399579719%2Fe016bf02d42f282d9c9b8bde%2FSimpleBackups-Mongo-NewConnection5.png?table=block&id=4a5891b9-5c5e-4eda-9a61-ee59eaf91832&cache=v2',
     },
   ];
 
@@ -341,16 +352,14 @@ const Guide = () => {
           <h1>SECKER</h1>
           <NavButton to="/">
             <NavIcon><FaHome /></NavIcon>
-            Hjem
+            Home
           </NavButton>
           <NavButton to="/guide">
             <NavIcon><FaBook /></NavIcon>
             Guide
           </NavButton>
 
-          <ul>
-            {/* Add watchLater items here similar to Home component */}
-          </ul>
+
           <SearchBar>
             <FaSearch />
             <SearchInput 
@@ -361,7 +370,7 @@ const Guide = () => {
             />
           </SearchBar>
           <TableOfContents>
-            <h3>Innholdsfortegnelse</h3>
+            <h3>Table of Contents</h3>
             {filteredSections.map((section, index) => (
               <TocLink key={index} onClick={() => scrollToSection(`section-${index}`)}>
                 {section.title}
@@ -372,7 +381,7 @@ const Guide = () => {
         <MainContent>
           <Header>
             <HeaderLeft>
-              <h2>Guide: Sett opp en MongoDB server</h2>
+              <h2>Guide: Setting up MongoDB with Atlas and Compass</h2>
             </HeaderLeft>
             <div>
               <Icon onClick={toggleTheme}>
@@ -393,6 +402,7 @@ const Guide = () => {
                 </SectionTitle>
                 <SectionContent isOpen={openSections[index]}>
                   <p>{section.content}</p>
+                  {section.image && <img src={section.image} alt={section.title} style={{ width: '100%', maxWidth: '300px', borderRadius: '8px', marginTop: '10px' }} />}
                 </SectionContent>
               </Section>
             ))}
